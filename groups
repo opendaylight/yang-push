@@ -1,0 +1,3 @@
+# UUID                                  	Group Name
+#
+ldap:cn=gerrit-yang-push-committers,ou=Groups,dc=opendaylight,dc=org	ldap/gerrit-yang-push-committers
