@@ -1,0 +1,5 @@
+[gerrit]
+host=git.opendaylight.org
+port=29418
+project=yang-push.git
+defaultbranch=master
