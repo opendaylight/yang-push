@@ -17,14 +17,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.yangpush</groupId>
+  <groupId>org.opendaylight.yang-push</groupId>
   <artifactId>yangpush-it</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
     <skipITs>false</skipITs>
-    <karaf.distro.groupId>org.opendaylight.yangpush</karaf.distro.groupId>
+    <karaf.distro.groupId>org.opendaylight.yang-push</karaf.distro.groupId>
     <karaf.distro.artifactId>yangpush-karaf</karaf.distro.artifactId>
     <karaf.distro.version>1.0.0-SNAPSHOT</karaf.distro.version>
     <karaf.distro.type>zip</karaf.distro.type>

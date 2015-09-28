@@ -42,7 +42,7 @@ public class YangpushIT extends AbstractMdsalTestBase {
     @Override
     public MavenUrlReference getFeatureRepo() {
         return maven()
-                .groupId("org.opendaylight.yangpush")
+                .groupId("org.opendaylight.yang-push")
                 .artifactId("yangpush-features")
                 .classifier("features")
                 .type("xml")

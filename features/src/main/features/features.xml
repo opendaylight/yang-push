@@ -17,13 +17,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.dlux/features-dlux/${dlux.version}/xml/features</repository>
   <feature name='odl-yangpush-api' version='${project.version}' description='OpenDaylight :: yangpush :: api'>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
-    <bundle>mvn:org.opendaylight.yangpush/yangpush-api/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.yang-push/yangpush-api/${project.version}</bundle>
   </feature>
   <feature name='odl-yangpush' version='${project.version}' description='OpenDaylight :: yangpush'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${project.version}'>odl-yangpush-api</feature>
-    <bundle>mvn:org.opendaylight.yangpush/yangpush-impl/${project.version}</bundle>
-    <configfile finalname="${configfile.directory}/yangpush.xml">mvn:org.opendaylight.yangpush/yangpush-impl/${project.version}/xml/config</configfile>
+    <bundle>mvn:org.opendaylight.yang-push/yangpush-impl/${project.version}</bundle>
+    <configfile finalname="${configfile.directory}/yangpush.xml">mvn:org.opendaylight.yang-push/yangpush-impl/${project.version}/xml/config</configfile>
   </feature>
   <feature name='odl-yangpush-rest' version='${project.version}' description='OpenDaylight :: yangpush :: REST'>
     <feature version="${project.version}">odl-yangpush</feature>
