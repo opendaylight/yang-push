@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Thanh Ha <thanh.ha@linuxfoundation.org>
+Code-Review+2: Ambika Prasad Tripathy <ambika.tripathy@cisco.com>
+Submitted-by: Ambika Prasad Tripathy <ambika.tripathy@cisco.com>
+Submitted-at: Tue, 29 Sep 2015 02:01:43 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/27546
+Project: yang-push
+Branch: refs/heads/master
