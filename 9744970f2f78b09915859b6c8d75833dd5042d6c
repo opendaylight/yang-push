@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_5e8489d3",
+        "filename": "api/src/main/yang/yangpush.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 4878
+      },
+      "writtenOn": "2015-10-09T08:06:59Z",
+      "side": 1,
+      "message": "Subscription-id should be string",
+      "range": {
+        "startLine": 27,
+        "startChar": 17,
+        "endLine": 27,
+        "endChar": 23
+      },
+      "revId": "9744970f2f78b09915859b6c8d75833dd5042d6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
