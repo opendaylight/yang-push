@@ -8,6 +8,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.impl.rev141210;
 
 import org.opendaylight.yangpush.impl.YangpushProvider;
+import org.opendaylight.yangpush.impl.SubscriptionService;
 
 public class YangpushModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.impl.rev141210.AbstractYangpushModule {
     public YangpushModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -25,8 +26,9 @@ public class YangpushModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        YangpushProvider provider = new YangpushProvider();
-        getBrokerDependency().registerProvider(provider);
+        //YangpushProvider provider = new YangpushProvider();
+    	final SubscriptionService provider = new SubscriptionService();
+        getDomBrokerDependency().registerProvider(provider);
         return provider;
     }
 

@@ -16,9 +16,7 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.generic.notifications.rev150611.GenericNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.generic.notifications.rev150611.GenericNotificationsListener;
-import org.opendaylight.netconf.sal.connect.netconf.schema.mapping.NetconfMessageTransformer;
 import org.opendaylight.yangpush.impl.SubscriptionService;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -64,7 +62,7 @@ public class LoggingNotificationHandler implements GenericNotificationsListener,
 	    Transformer transformer = tf.newTransformer();
 	    transformer.transform(domSource, result);
 	    String filterString = writer.toString();
-		LOG.info("Notification recieved {}", filterString);
+		LOG.info("Notification recieved \n{}", filterString);
 		}catch (Exception e){
 			LOG.warn(e.toString());
 		}

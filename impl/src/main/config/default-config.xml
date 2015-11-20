@@ -19,11 +19,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <module>
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:yangpush:impl">prefix:yangpush</type>
           <name>yangpush-default</name>
-          <!-- Inject the default instance of MD-SAL's core BA service-->
+          <!-- Inject the default instance of MD-SAL's core BA service>
           <broker>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-broker-osgi-registry</type>
             <name>binding-osgi-broker</name>
-          </broker>
+          </broker-->
           <!-- Inject the default instance of MD-SAL's core BI service-->
           <dom-broker>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">prefix:dom-broker-osgi-registry</type>
