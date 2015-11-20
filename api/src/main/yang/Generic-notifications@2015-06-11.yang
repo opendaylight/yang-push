@@ -1,0 +1,22 @@
+module generic-notifications {
+
+  namespace "urn:opendaylight:params:xml:ns:yang:yangpush:generic:notifications";
+
+  prefix "ex-not";
+
+  description
+    "Sample model used for notification utilization demonstration.
+    This model is not used by XR or any other netconf server.";
+
+  revision "2015-06-11" {
+    description
+      "Initial revision.";
+  }
+
+  notification generic-notification {
+    anyxml value;
+    description "Generic Notification for testing";
+  } 
+  
+
+}

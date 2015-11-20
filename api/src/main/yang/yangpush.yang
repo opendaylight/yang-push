@@ -18,14 +18,37 @@ module yangpush {
     revision "2015-01-05" {
         description "Initial revision of yangpush model";
     }
-
-    augment "/n:create-subscription/n:input" {
-        leaf period {
-            type uint32;
-        }
-        leaf subscription-id {
-            type string;
-        }
-    }
     
+	rpc cs {
+        description
+            "This is atest RPC to initiate create-subscription
+            for ds-push stream to the given node name if available. ";
+        input {
+            leaf node-name {
+                mandatory true;
+                type string;
+                description
+                    "Name of the mounted node to be displayed";
+            }
+            leaf stream {
+                type string;
+                description
+                    "stream name";
+            }
+            leaf period {
+                type uint32;
+                description
+                    "period for a periodic subscription";
+            }
+            leaf subscription-id {
+                type string;
+                description 
+                    "unique subscription id";
+            }
+            anyxml filter {
+                description
+                    "subtree filter string";
+            }
+        }
+    }    
 }
