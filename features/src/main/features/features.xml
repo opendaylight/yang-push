@@ -10,19 +10,22 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 <features name="odl-yangpush-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
-  <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/${mdsal.model.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.netconf/features-restconf/${restconf.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.yangtools/features-yangtools/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.controller/features-mdsal/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.netconf/features-restconf/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.netconf/features-netconf-connector/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.dlux/features-dlux/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.netconf/features-netconf/${netconf.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.dlux/features-dlux/${dlux.version}/xml/features</repository>
   <feature name='odl-yangpush-api' version='${project.version}' description='OpenDaylight :: yangpush :: api'>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${netconf.version}'>odl-netconf-all</feature>
     <bundle>mvn:org.opendaylight.yang-push/yangpush-api/${project.version}</bundle>
   </feature>
   <feature name='odl-yangpush' version='${project.version}' description='OpenDaylight :: yangpush'>
-    <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+    <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
+    <feature version='${netconf.version}'>odl-netconf-connector-all</feature>
+    <feature version='${controller.mdsal.version}'>odl-netconf-mdsal</feature>
     <feature version='${project.version}'>odl-yangpush-api</feature>
     <bundle>mvn:org.opendaylight.yang-push/yangpush-impl/${project.version}</bundle>
     <configfile finalname="${configfile.directory}/yangpush.xml">mvn:org.opendaylight.yang-push/yangpush-impl/${project.version}/xml/config</configfile>
@@ -34,8 +37,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <feature name='odl-yangpush-ui' version='${project.version}' description='OpenDaylight :: yangpush :: UI'>
     <feature version="${project.version}">odl-yangpush-rest</feature>
     <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
-    <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
-    <feature version="${dlux.version}">odl-dlux-yangui</feature>
+    <feature version="${dlux.version}">odl-dlux-all</feature>
   </feature>
-
 </features>

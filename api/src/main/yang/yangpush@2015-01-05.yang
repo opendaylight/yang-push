@@ -1,0 +1,78 @@
+module yangpush {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:yangpush";
+    prefix "yangpush";
+
+    import notifications { prefix n; revision-date "2008-07-14"; }
+    import ietf-datastore-push {prefix p; revision-date "2015-10-15"; }
+    import ietf-yang-types { prefix yang; }
+
+    organization "CISCO";
+
+     contact
+       "Editor:   Ambika Prasad Tripathy
+                  <mailto:ambtripa@cisco.com>"; 
+
+    description
+        "This yang module supports extra parameters expected by 
+        ietf-datastore-push for create_subscription RPC for devices.
+        ODl is using a intermediate yand model for IETF notification.
+        The model is augmenting the input of create-subscription
+        RPC of notifiation YANG model.";
+
+    reference
+        "RFC 5277.";
+
+    revision "2015-01-05" {
+        description "Intermediate revision of yangpush model";
+    }
+
+    typedef subscription-id {
+        type string {
+            length "1 .. max";
+        }
+        description
+         "A client-provided identifier for the subscription.";
+     }
+     
+    augment "/n:create-subscription/n:input" {
+        leaf period {
+            type yang:timeticks;
+            description
+                "Elapsed time between notifications.";
+        }
+        leaf subscription-id {
+            type subscription-id;
+            description
+                "Identifier used for this subscription.";
+        }
+    }
+    
+    augment "/p:create-subscription/p:input" {
+        leaf node-name {
+            type string;
+        }
+    }
+    
+    
+    container push-updates {
+        //config false;
+        list push-update {
+            key subscription-id;
+            leaf subscription-id {
+                type p:subscription-id;
+            }
+            leaf time-of-update {
+                type yang:date-and-time;
+                description
+                    "This leaf contains the time of the update.";
+            }
+            leaf data {
+                type string;
+                description
+                    "this contains data in string format
+                    for the subscription path for each update";
+            }
+        }
+    }
+}
