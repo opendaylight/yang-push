@@ -1,0 +1,10 @@
+Code-Review+2: Einar Nilsen-Nygaard <einarnn@gmail.com>
+Code-Review+2: Eric Voit <evoit@cisco.com>
+Verified+1: Eric Voit <evoit@cisco.com>
+Code-Review+1: swaroop shastri <shastriswaroop@gmail.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Submitted-by: Ambika Prasad Tripathy <ambika.tripathy@cisco.com>
+Submitted-at: Tue, 01 Dec 2015 05:40:55 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/30323
+Project: yang-push
+Branch: refs/heads/master
