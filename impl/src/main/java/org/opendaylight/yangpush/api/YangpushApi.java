@@ -12,5 +12,4 @@ import javax.xml.transform.dom.DOMSource;
 
 public interface YangpushApi {
 
-    void invokePushUpdate(DOMSource data);
 }
