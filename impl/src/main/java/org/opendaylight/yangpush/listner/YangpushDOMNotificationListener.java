@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.datastore.p
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.datastore.push.rev151015.SubscriptionTerminated;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.datastore.push.rev151015.push.update.Encoding;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.rev150105.PushUpdates;
+import org.opendaylight.yangpush.rpc.YangpushRpcImpl;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -55,22 +56,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
-
+/**
+ * This class implements Notification listener for the notification defined in
+ * ietf-datastore-push.yang model.
+ *
+ * @author Ambika.Tripathy
+ *
+ */
 public class YangpushDOMNotificationListener implements IetfDatastorePushListener, DOMNotificationListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(YangpushDOMNotificationListener.class);
     private DOMDataBroker globalDomDataBroker;
     private String subscription_id = "";
 
-    static final QName PU_subId = QName.cachedReference(QName.create(PushUpdate.QNAME, "subscription-id"));
-    static final QName PU_DataStoreContentsXML = QName
-            .cachedReference(QName.create(PushUpdate.QNAME, "datastore-contents-xml"));
-    static final QName PU_encoding = QName.cachedReference(QName.create(PushUpdate.QNAME, "encoding"));
-    static final QName PU_timeofupdate = QName.cachedReference(QName.create(PushUpdate.QNAME, "time-of-update"));
+    NodeIdentifier encoding = new NodeIdentifier(YangpushRpcImpl.I_PUSH_ENCODING);
+    NodeIdentifier contents = new NodeIdentifier(YangpushRpcImpl.I_PUSH_DATASTORECONTENTSXML);
+    NodeIdentifier subid = new NodeIdentifier(YangpushRpcImpl.I_PUSH_SUB_ID);
+    NodeIdentifier timeofevent = new NodeIdentifier(YangpushRpcImpl.I_PUSH_TIME_OF_UPDATE);
 
     // Nodes to push notification data to mdsal datastore
     public YangInstanceIdentifier push_update_iid = null;
-    //
 
     public YangpushDOMNotificationListener(DOMDataBroker globalDomDataBroker, String subscription_id) {
         this.globalDomDataBroker = globalDomDataBroker;
@@ -78,42 +83,63 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
         this.push_update_iid = buildIID(subscription_id);
     }
 
+    /**
+     * This method creates a YANG II for the subscription-id
+     * used for this subscription to track. The may be multiple subscription
+     * each will be identified by by the subscription-id.
+     *
+     * @param sub_id
+     * @return
+     */
     private YangInstanceIdentifier buildIID(String sub_id) {
-        QName pushupdate = QName.create("urn:opendaylight:params:xml:ns:yang:yangpush", "2015-01-05", "push-update");
+
+        QName pushupdate = QName.create(YangpushRpcImpl.YANGPUSH_NS, YangpushRpcImpl.YANGPUSH_NS_DATE, "push-update");
         org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder builder = org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier
                 .builder();
-        builder.node(PushUpdates.QNAME);//.node(pushupdate).nodeWithKey(pushupdate,
-                //QName.create(pushupdate, "subscription-id"), sub_id);
+        builder.node(PushUpdates.QNAME).node(pushupdate).nodeWithKey(pushupdate,
+                QName.create(pushupdate, "subscription-id"), sub_id);
 
         return builder.build();
     }
 
+    /**
+     * This method implements on Notification.
+     * When there is a notification received by listener, that should be
+     * parsed for the subscription-id and then processed.
+     */
     @Override
     public void onNotification(DOMNotification notification) {
-        // TODO Auto-generated method stub
         LOG.info("Notification recieved {}", notification.getBody());
-
         QName qname = PushUpdate.QNAME;
         SchemaPath schemaPath = SchemaPath.create(true, qname);
-
         if (notification.getType().equals(schemaPath)) {
-            LOG.info("onPushUpdate schema..");
-            try {
-                DOMSource domSource = notificationToDomSource(notification);
-
-            } catch (Exception e) {
-                LOG.warn(e.toString());
+            ContainerNode conNode = notification.getBody();
+            //If the subscription-id of notification same as
+            // subscription-id set for this object then proceed.
+            if (conNode.getChild(subid).get().getValue().toString().equals(subscription_id)){
+                LOG.info("onPushUpdate schema..");
+                try {
+                    pushUpdateHandlder(notification);
+                } catch (Exception e) {
+                    LOG.warn(e.toString());
+               }
+            } else {
+                LOG.info("Expected subscription-id {}, got {}. Skipping the notification processing",
+                        this.subscription_id,conNode.getChild(subid).get().getValue().toString());
             }
         }
     }
 
-    private DOMSource notificationToDomSource(DOMNotification notification) {
-        NodeIdentifier encoding = new NodeIdentifier(PU_encoding);
-        NodeIdentifier contents = new NodeIdentifier(PU_DataStoreContentsXML);
-        NodeIdentifier subid = new NodeIdentifier(PU_subId);
-        NodeIdentifier timeofevent = new NodeIdentifier(PU_timeofupdate);
+    /**
+     * This method parse the pushUpdate notification received
+     * for the subscription-id and stores the data to md-sal
+     * using path /push-updates/push-update/[subscription-id=sub_id]/
+     *
+     * @param notification
+     * @return DOMSource for the notification
+     */
+    private void pushUpdateHandlder(DOMNotification notification) {
         ContainerNode conNode = notification.getBody();
-        // DataContainerChild<? extends PathArgument, ?> valueNode = null;
         ChoiceNode valueNode = null;
         AnyXmlNode anyXmlValue = null;
         DOMSource domSource = null;
@@ -130,110 +156,46 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
         }
         String notificationAsString = domSourceToString(domSource);
         LOG.info("Notification recieved for sub_id :{} at : {}:\n {}", sub_id, timeofeventupdate, notificationAsString);
-
         storeToMdSal(sub_id, timeofeventupdate, domSource, notificationAsString);
-
-        return domSource;
     }
 
+
+    /**
+     * This method stores the pushUpdate Notification data to MD-SAL
+     *
+     * @param sub_id
+     * @param timeofeventupdate
+     * @param domSource
+     * @param data
+     */
     private void storeToMdSal(String sub_id, String timeofeventupdate, DOMSource domSource, String data) {
         NodeIdentifier subscriptionid = NodeIdentifier.create(QName.create(PushUpdates.QNAME, "subscription-id"));
         NodeIdentifier timeofupdate = NodeIdentifier.create(QName.create(PushUpdates.QNAME, "time-of-update"));
         NodeIdentifier datanode = NodeIdentifier.create(QName.create(PushUpdates.QNAME, "data"));
-        NodeIdentifier encoding = NodeIdentifier.create(QName.create(PushUpdates.QNAME, "encoding"));
-        NodeIdentifier datastorecontentsxml = NodeIdentifier
-                .create(QName.create(PushUpdates.QNAME, "datastore-contents-xml"));
-        NodeIdentifier pushupdates = NodeIdentifier.create(PushUpdates.QNAME);
-        NodeIdentifier pushupdate = NodeIdentifier.create(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.rev150105.push.updates.PushUpdate.QNAME);
-        
-        DOMDataWriteTransaction tx = this.globalDomDataBroker.newWriteOnlyTransaction();
         YangInstanceIdentifier pid = YangInstanceIdentifier.builder()
                 .node(PushUpdates.QNAME)
                 .node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.rev150105.push.updates.PushUpdate.QNAME).build();
-        
-        final NormalizedNodeAttrBuilder<NodeIdentifier, DOMSource, AnyXmlNode> anyXmlBuilder = Builders.anyXmlBuilder()
-                .withNodeIdentifier(datastorecontentsxml).withValue(domSource);
-        AnyXmlNode val = anyXmlBuilder.build();
-        
-        ChoiceNode c = Builders.choiceBuilder().withNodeIdentifier(encoding)
-                .withChild(val).build();
-                //.withChild(ImmutableNodes.leafNode(datastorecontentsxml, notificationAsString)).build();
-        
+
         NodeIdentifierWithPredicates p = new NodeIdentifierWithPredicates(
                 QName.create(PushUpdates.QNAME, "push-update"),
                 QName.create(PushUpdates.QNAME, "subscription-id"),
                 sub_id);
-        
+
         MapEntryNode men = ImmutableNodes.mapEntryBuilder().withNodeIdentifier(p)
                 .withChild(ImmutableNodes.leafNode(subscriptionid, sub_id))
                 .withChild(ImmutableNodes.leafNode(timeofupdate, timeofeventupdate))
                 .withChild(ImmutableNodes.leafNode(datanode,data))
-                //.withChild(ImmutableNodes.choiceNode(encoding.getNodeType()))
-                //.withChild(val)
-                //.withChild(c)
                 .build();
-        //Create Top Container node
-        YangInstanceIdentifier iid = YangInstanceIdentifier.builder()
-                .node(PushUpdates.QNAME).build();
-        ContainerNode cn = Builders.containerBuilder().withNodeIdentifier(pushupdates).build();
-        tx.merge(LogicalDatastoreType.CONFIGURATION, iid, cn);
-        try {
-            LOG.info("Store to container");
-            tx.submit().checkedGet();
-        } catch (TransactionCommitFailedException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        //
-        YangInstanceIdentifier iid_1 = iid.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.rev150105.push.updates.PushUpdate.QNAME);
-        MapNode mn = Builders.mapBuilder().withNodeIdentifier(pushupdate).build();
-        DOMDataWriteTransaction tx_1 = this.globalDomDataBroker.newWriteOnlyTransaction();
-        tx_1.merge(LogicalDatastoreType.CONFIGURATION, iid_1, mn);
-        try {
-            LOG.info("Store to list");
-            tx_1.submit().checkedGet();
-        } catch (TransactionCommitFailedException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
-        //create list node:
-        
-        DOMDataWriteTransaction tx_2 = this.globalDomDataBroker.newWriteOnlyTransaction();
+
+        DOMDataWriteTransaction tx = this.globalDomDataBroker.newWriteOnlyTransaction();
         YangInstanceIdentifier yid = pid.node(new NodeIdentifierWithPredicates(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.rev150105.push.updates.PushUpdate.QNAME, men.getIdentifier().getKeyValues()));
-        tx_2.merge(LogicalDatastoreType.CONFIGURATION, yid, men);
+        tx.merge(LogicalDatastoreType.CONFIGURATION, yid, men);
         LOG.info("--DATA PATh: {}\n--DATA\n{}",yid,men);
         try {
-            LOG.info("Stores the list data");
-            tx_2.submit().checkedGet();
+            tx.submit().checkedGet();
         } catch (TransactionCommitFailedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        //
-/*        YangInstanceIdentifier yid_1 = yid.node(encoding.getNodeType());
-        DOMDataWriteTransaction tx_3 = this.globalDomDataBroker.newWriteOnlyTransaction();
-        ChoiceNode chn = Builders.choiceBuilder().withNodeIdentifier(encoding).build();
-        tx_3.merge(LogicalDatastoreType.CONFIGURATION, yid_1, chn);
-        try {
-            LOG.info("Create list/choice");
-            tx_3.submit().checkedGet();
-        } catch (TransactionCommitFailedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
-        //
-/*        
-        DOMDataWriteTransaction tx_4 = this.globalDomDataBroker.newWriteOnlyTransaction();
-        tx_4.merge(LogicalDatastoreType.CONFIGURATION, yid_1, c);
-        try {
-            LOG.info("Create list/choice/data");
-            tx_4.submit().checkedGet();
-        } catch (TransactionCommitFailedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
-        
     }
 
     @Override
@@ -248,21 +210,12 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
         LOG.info("Notification recieved {}", notification);
     }
 
+    //TODO: Implement onPushUpdate instead of onNotification.
+    // AT present no found how to do it in BI way. Hence using onNotification.
     @Override
     public void onPushUpdate(PushUpdate notification) {
         // TODO Auto-generated method stub
-        String subId = notification.getSubscriptionId().toString();
-        String timeOfUpdate = notification.getTimeOfUpdate().toString();
-        // notification.getEncoding();
-        Class<? extends DataContainer> content = notification.getEncoding().getImplementedInterface();
-
-        try {
-            // content =
-            // notification.getEncoding().getDatastoreContentsXml().toString();
-        } catch (Exception e) {
-            LOG.error("Only XML content supported!");
-        }
-        LOG.info("SubscriptionId: {}\nTimeOfUpdate: {}\ncontent: {}", subId, timeOfUpdate, content);
+        LOG.info("Notification recieved {}", notification);
     }
 
     @Override
@@ -289,6 +242,12 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
         LOG.info("Notification recieved {}", notification);
     }
 
+    /**
+     * Util method to convert a DOMSource to a string.
+     *
+     * @param source
+     * @return String in XML format
+     */
     private String domSourceToString(DOMSource source) {
         try {
             StringWriter writer = new StringWriter();

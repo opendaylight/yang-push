@@ -51,16 +51,19 @@ module yangpush {
     augment "/p:create-subscription/p:input" {
         leaf node-name {
             type string;
+            description
+                "Mount device name.";
         }
     }
     
     
     container push-updates {
-        //config false;
         list push-update {
             key subscription-id;
             leaf subscription-id {
                 type p:subscription-id;
+                description
+                    "subscription id";
             }
             leaf time-of-update {
                 type yang:date-and-time;

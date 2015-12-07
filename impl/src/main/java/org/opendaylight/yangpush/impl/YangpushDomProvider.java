@@ -60,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangpush.listner.YangpushDOMNotificationListener;
 import org.opendaylight.yangpush.rpc.YangpushRpcImpl;
+import org.opendaylight.yangpush.subscription.YangpushSubscriptionEngine;
 import org.opendaylight.yangtools.concepts.Immutable;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -128,9 +129,10 @@ public class YangpushDomProvider implements Provider, AutoCloseable, DOMDataChan
         NETCONF_TOPO_IID = builder.build();
     }
 
-    private DOMMountPointService mountPointService;
-    private DOMDataBroker globalDomDataBroker;
-    private YangpushRpcImpl yangpushRpcImpl;
+    private DOMMountPointService mountPointService = null;
+    private DOMDataBroker globalDomDataBroker = null;
+    private YangpushRpcImpl yangpushRpcImpl = null;
+    private YangpushSubscriptionEngine subEngine = null;
 
     /**
      * This method initializes DomDataBroker and Mountpoint service.
@@ -143,6 +145,10 @@ public class YangpushDomProvider implements Provider, AutoCloseable, DOMDataChan
         // get the DOM versions of MD-SAL services
         this.globalDomDataBroker = providerSession.getService(DOMDataBroker.class);
         this.mountPointService = providerSession.getService(DOMMountPointService.class);
+
+        this.subEngine = YangpushSubscriptionEngine.getInstance();
+        this.subEngine.setDataBroker(globalDomDataBroker);
+        this.subEngine.createPushUpdateDataStore();
 
         final DOMRpcProviderService service = providerSession.getService(DOMRpcProviderService.class);
         yangpushRpcImpl = new YangpushRpcImpl(service,this.mountPointService, this.globalDomDataBroker);

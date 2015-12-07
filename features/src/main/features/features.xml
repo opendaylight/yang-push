@@ -25,7 +25,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <feature name='odl-yangpush' version='${project.version}' description='OpenDaylight :: yangpush'>
     <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${netconf.version}'>odl-netconf-connector-all</feature>
-    <feature version='${controller.mdsal.version}'>odl-netconf-mdsal</feature>
+    <feature version='${netconf.version}'>odl-netconf-all</feature>
     <feature version='${project.version}'>odl-yangpush-api</feature>
     <bundle>mvn:org.opendaylight.yang-push/yangpush-impl/${project.version}</bundle>
     <configfile finalname="${configfile.directory}/yangpush.xml">mvn:org.opendaylight.yang-push/yangpush-impl/${project.version}/xml/config</configfile>
