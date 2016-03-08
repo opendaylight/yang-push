@@ -8,8 +8,6 @@
 
 package org.opendaylight.yangpush.api;
 
-import javax.xml.transform.dom.DOMSource;
-
 public interface YangpushApi {
 
 }

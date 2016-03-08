@@ -9,18 +9,9 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpus
 
 import org.junit.Test;
 import org.opendaylight.controller.config.api.DependencyResolver;
-import org.opendaylight.controller.config.api.JmxAttribute;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.yangpush.impl.YangpushProvider;
 
-import javax.management.ObjectName;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class YangpushModuleTest {
     @Test
