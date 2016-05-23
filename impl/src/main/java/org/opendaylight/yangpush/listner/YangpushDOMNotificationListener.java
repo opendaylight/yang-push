@@ -30,6 +30,8 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -57,7 +59,8 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
 
     private static final Logger LOG = LoggerFactory.getLogger(YangpushDOMNotificationListener.class);
     private DOMDataBroker globalDomDataBroker;
-    private String subscription_id = "";
+   // private String subscription_id = "";
+    List<String> subscriptionList = new ArrayList<String>();
 
     NodeIdentifier encoding = new NodeIdentifier(YangpushRpcImpl.I_PUSH_ENCODING);
     NodeIdentifier contents = new NodeIdentifier(YangpushRpcImpl.I_PUSH_DATASTORECONTENTSXML);
@@ -65,12 +68,20 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
     NodeIdentifier timeofevent = new NodeIdentifier(YangpushRpcImpl.I_PUSH_TIME_OF_UPDATE);
 
     // Nodes to push notification data to mdsal datastore
-    public YangInstanceIdentifier push_update_iid = null;
+    //public YangInstanceIdentifier push_update_iid = null;
 
-    public YangpushDOMNotificationListener(DOMDataBroker globalDomDataBroker, String subscription_id) {
+    public YangpushDOMNotificationListener(DOMDataBroker globalDomDataBroker) {
         this.globalDomDataBroker = globalDomDataBroker;
-        this.subscription_id = subscription_id;
-        this.push_update_iid = buildIID(subscription_id);
+        //this.subscription_id = subscription_id;
+        //this.push_update_iid = buildIID(subscription_id);
+    }
+
+    public void insertSubscriptionId(String subId) {
+        this.subscriptionList.add(subId);
+    }
+
+    public void removeSubscriptionId(String subId) {
+        this.subscriptionList.remove(subId);
     }
 
     /**
@@ -81,7 +92,7 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
      * @param sub_id
      * @return
      */
-    private YangInstanceIdentifier buildIID(String sub_id) {
+/*    private YangInstanceIdentifier buildIID(String sub_id) {
 
         QName pushupdate = QName.create(YangpushRpcImpl.YANGPUSH_NS, YangpushRpcImpl.YANGPUSH_NS_DATE, "push-update");
         org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder builder = org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier
@@ -90,7 +101,7 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
                 QName.create(pushupdate, "subscription-id"), sub_id);
 
         return builder.build();
-    }
+    }*/
 
     /**
      * This method implements on Notification.
@@ -99,23 +110,24 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
      */
     @Override
     public void onNotification(DOMNotification notification) {
-        LOG.info("Notification recieved {}", notification.getBody());
+        LOG.trace("Notification recieved {}", notification.getBody());
         QName qname = PushUpdate.QNAME;
         SchemaPath schemaPath = SchemaPath.create(true, qname);
         if (notification.getType().equals(schemaPath)) {
             ContainerNode conNode = notification.getBody();
             //If the subscription-id of notification same as
             // subscription-id set for this object then proceed.
-            if (conNode.getChild(subid).get().getValue().toString().equals(subscription_id)){
-                LOG.info("onPushUpdate schema..");
+            //if (conNode.getChild(subid).get().getValue().toString().equals(subscription_id)){
+            if (this.subscriptionList.contains(conNode.getChild(subid).get().getValue().toString())) {
+                LOG.trace("Received push-udpate for subscription {}",conNode.getChild(subid).get().getValue().toString() );
                 try {
                     pushUpdateHandlder(notification);
                 } catch (Exception e) {
                     LOG.warn(e.toString());
                }
             } else {
-                LOG.info("Expected subscription-id {}, got {}. Skipping the notification processing",
-                        this.subscription_id,conNode.getChild(subid).get().getValue().toString());
+                LOG.error("Received subscription-id {} is not valid. Skipping the notification processing",
+                conNode.getChild(subid).get().getValue().toString());
             }
         }
     }
@@ -144,8 +156,9 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
         } catch (Exception e) {
             LOG.warn(e.toString());
         }
-        String notificationAsString = domSourceToString(domSource);
-        LOG.info("Notification recieved for sub_id :{} at : {}:\n {}", sub_id, timeofeventupdate, notificationAsString);
+        //String notificationAsString = domSourceToString(domSource);
+        String notificationAsString = valueNode.getChild(contents).get().getValue().toString();
+        LOG.trace("Notification recieved for sub_id :{} at : {}:\n {}", sub_id, timeofeventupdate, notificationAsString);
         storeToMdSal(sub_id, timeofeventupdate, domSource, notificationAsString);
     }
 
@@ -180,7 +193,7 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
         DOMDataWriteTransaction tx = this.globalDomDataBroker.newWriteOnlyTransaction();
         YangInstanceIdentifier yid = pid.node(new NodeIdentifierWithPredicates(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.yangpush.rev150105.push.updates.PushUpdate.QNAME, men.getIdentifier().getKeyValues()));
         tx.merge(LogicalDatastoreType.CONFIGURATION, yid, men);
-        LOG.info("--DATA PATh: {}\n--DATA\n{}",yid,men);
+        //LOG.info("--DATA PATh: {}\n--DATA\n{}",yid,men);
         try {
             tx.submit().checkedGet();
         } catch (TransactionCommitFailedException e) {
@@ -191,13 +204,13 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
     @Override
     public void onSubscriptionModified(SubscriptionModified notification) {
         // TODO Auto-generated method stub
-        LOG.info("Notification recieved {}", notification);
+        LOG.trace("Notification recieved {}", notification);
     }
 
     @Override
     public void onSubscriptionResumed(SubscriptionResumed notification) {
         // TODO Auto-generated method stub
-        LOG.info("Notification recieved {}", notification);
+        LOG.trace("Notification recieved {}", notification);
     }
 
     //TODO: Implement onPushUpdate instead of onNotification.
@@ -205,31 +218,31 @@ public class YangpushDOMNotificationListener implements IetfDatastorePushListene
     @Override
     public void onPushUpdate(PushUpdate notification) {
         // TODO Auto-generated method stub
-        LOG.info("Notification recieved {}", notification);
+        LOG.trace("Notification recieved {}", notification);
     }
 
     @Override
     public void onPushChangeUpdate(PushChangeUpdate notification) {
         // TODO Auto-generated method stub
-        LOG.info("Notification recieved {}", notification);
+        LOG.trace("Notification recieved {}", notification);
     }
 
     @Override
     public void onSubscriptionSuspended(SubscriptionSuspended notification) {
         // TODO Auto-generated method stub
-        LOG.info("Notification recieved {}", notification);
+        LOG.trace("Notification recieved {}", notification);
     }
 
     @Override
     public void onSubscriptionTerminated(SubscriptionTerminated notification) {
         // TODO Auto-generated method stub
-        LOG.info("Notification recieved {}", notification);
+        LOG.trace("Notification recieved {}", notification);
     }
 
     @Override
     public void onSubscriptionStarted(SubscriptionStarted notification) {
         // TODO Auto-generated method stub
-        LOG.info("Notification recieved {}", notification);
+        LOG.trace("Notification recieved {}", notification);
     }
 
     /**

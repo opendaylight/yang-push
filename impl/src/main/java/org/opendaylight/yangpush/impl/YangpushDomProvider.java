@@ -126,6 +126,6 @@ public class YangpushDomProvider implements Provider, AutoCloseable, DOMDataChan
     public void onDataChanged(final AsyncDataChangeEvent<YangInstanceIdentifier, NormalizedNode<?, ?>> change) {
         // TODO: Method need to be implemented. The data change has to
         // be handled in the same way as in yangpushProvider.
-        LOG.info("data changed: {}", change);
+        LOG.trace("data changed: {}", change);
     }
 }

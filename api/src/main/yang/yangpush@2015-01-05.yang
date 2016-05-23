@@ -55,8 +55,15 @@ module yangpush {
                 "Mount device name.";
         }
     }
-    
-    
+
+    augment "/p:delete-subscription/p:input" {
+        leaf node-name {
+            type string;
+            description
+                "Mount device name.";
+        }
+    }
+
     container push-updates {
         list push-update {
             key subscription-id;
@@ -64,6 +71,11 @@ module yangpush {
                 type p:subscription-id;
                 description
                     "subscription id";
+            }
+            leaf node-name {
+                type string;
+                description
+                    "Mount device name.";
             }
             leaf time-of-update {
                 type yang:date-and-time;

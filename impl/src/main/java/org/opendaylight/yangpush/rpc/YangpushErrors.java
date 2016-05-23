@@ -28,6 +28,7 @@ public class YangpushErrors {
             "Invalid Period for subscription",
             "Error in subscription filter",
             "Subscription not possible, due to resource unavailability",
+            "Subscription id error in RPC input",
     };
 
     public static enum errors{
@@ -43,6 +44,7 @@ public class YangpushErrors {
         period_error,
         filter_error,
         subscription_creation_error,
+        input_sub_id_error,
         max_error_count,
     };
 
