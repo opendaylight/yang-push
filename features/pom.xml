@@ -82,11 +82,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.opendaylight.netconf</groupId>
-			<artifactId>netconf-config-dispatcher</artifactId>
-			<version>${netconf.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.opendaylight.netconf</groupId>
 			<artifactId>features-netconf</artifactId>
 			<version>${netconf.version}</version>
 			<classifier>features</classifier>
